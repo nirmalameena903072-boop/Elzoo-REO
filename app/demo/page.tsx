@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { QrCode, UtensilsCrossed, ChefHat, BarChart3, MonitorCog, Printer, ArrowUpRight } from "lucide-react";
-import { ensureDb } from "@/lib/db";
+import { ensureDb, isPersistent } from "@/lib/db";
 import { getOutlet, getTableByNumber } from "@/lib/db/queries";
 import { mintTableToken } from "@/lib/auth/table-token";
 import { AlsaWordmark, VoludWordmark } from "@/components/brand/Marks";
@@ -33,6 +33,7 @@ const pins = [
 
 export default async function DemoPage() {
   await ensureDb();
+  const persistent = isPersistent();
   const outlet = await getOutlet();
   const t5 = await getTableByNumber("T5");
   const token = outlet && t5
@@ -108,7 +109,15 @@ export default async function DemoPage() {
       </section>
 
       <footer className="mt-20 flex flex-wrap items-center justify-between gap-4 border-t border-[var(--hairline)] pt-6">
-        <p className="text-[12px] text-cream-2">Sample build. Payments simulated — no money moves.</p>
+        <div>
+          <p className="text-[12px] text-cream-2">Sample build. Payments simulated — no money moves.</p>
+          {!persistent && (
+            <p className="mt-1.5 max-w-[46ch] text-[11px] leading-relaxed text-cream-2/80">
+              This deployment runs a per-instance SQLite file, so orders you place here live in one
+              server instance and can reset when it goes cold. Fine for kicking the tyres — not storage.
+            </p>
+          )}
+        </div>
         <div className="flex items-center gap-4 text-[12px]">
           <Link href="/staff/login" className="text-cream-1 underline decoration-[var(--hairline-strong)] underline-offset-4 hover:text-cream-0">Staff login</Link>
           <Link href="/api/health" className="text-cream-1 underline decoration-[var(--hairline-strong)] underline-offset-4 hover:text-cream-0">Health</Link>
